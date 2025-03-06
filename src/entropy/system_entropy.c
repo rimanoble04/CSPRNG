@@ -59,14 +59,15 @@ int get_CPU_entropy(uint8_t *buffer, size_t len) {
         printf("Error: RDRAND is not supported on this CPU\n");
         return -1;
     #endif
+    //here
 }
 
 
 
 int main(){
     
-    uint8_t buffer [256];
-    size_t len = 256;
+    uint8_t buffer [32];
+    size_t len = 32;
     if(get_system_entropy(buffer, len) == 0){
         printf("Entropy generated successfully\n");
     }
