@@ -1,12 +1,6 @@
 //gcc system_entropy.c -o system_entropy.exe -lbcrypt -mrdrnd
 
-#include<stdio.h>
-#include<stdint.h>
-#include<windows.h>
-#include<bcrypt.h>
-#include <string.h>
-#include <immintrin.h>  // Required for RDRAND intrinsic
-#pragma comment(lib, "bcrypt.lib")
+#include "entropy.h"
 
 void display(uint8_t *buffer, size_t len) {
     for(int i = 0; i < len; i++) {
@@ -22,7 +16,7 @@ int get_system_entropy(uint8_t *buffer, size_t len) {
         return -1;
     }
     else{
-        display(buffer, len);
+        //display(buffer, len);
         return 0;
     }
 }
@@ -52,7 +46,7 @@ int get_CPU_entropy(uint8_t *buffer, size_t len) {
         }
     }
 
-    display(buffer, len);
+    //display(buffer, len);
     return 0;
 
     #else
@@ -63,19 +57,37 @@ int get_CPU_entropy(uint8_t *buffer, size_t len) {
 }
 
 
+void save_to_file(uint8_t *buffer, size_t len, const char *filename) {
+    FILE *file = fopen(filename, "wb");
+    if (!file) {
+        printf("Error: Cannot open file %s\n", filename);
+        return;
+    }
+    fwrite(buffer, 1, len, file);
+    fclose(file);
+    printf("Entropy saved to %s\n", filename);
+}
 
 int main(){
     
-    uint8_t buffer [32];
+    uint8_t buffer [ENTROPY_SIZE];
     size_t len = 32;
     if(get_system_entropy(buffer, len) == 0){
         printf("Entropy generated successfully\n");
+        save_to_file(buffer, len, "output.txt");
     }
 
     if(get_CPU_entropy(buffer, len) == 0){
         printf("Hardware Entropy generated successfully\n");
+     
+
+        if(get_system_entropy(buffer, len) == 0){
+            printf("Entropy generated successfully\n");
+            save_to_file(buffer, len, "output.txt");
+        
+        }
     }
-    
+  
     else{
         printf("Error: Entropy generation failed\n");
     }
