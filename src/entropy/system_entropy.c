@@ -1,12 +1,8 @@
 //gcc system_entropy.c -o system_entropy.exe -lbcrypt -mrdrnd
 
-#include<stdio.h>
-#include<stdint.h>
-#include<windows.h>
-#include<bcrypt.h>
-#include <string.h>
-#include <immintrin.h>  // Required for RDRAND intrinsic
-#pragma comment(lib, "bcrypt.lib")
+#include "entropy.h"
+
+uint8_t buffer[MIXED_ENTROPY_SIZE];
 
 void display(uint8_t *buffer, size_t len) {
     for(int i = 0; i < len; i++) {
@@ -22,7 +18,7 @@ int get_system_entropy(uint8_t *buffer, size_t len) {
         return -1;
     }
     else{
-        display(buffer, len);
+        //display(buffer, len);
         return 0;
     }
 }
@@ -52,32 +48,64 @@ int get_CPU_entropy(uint8_t *buffer, size_t len) {
         }
     }
 
-    display(buffer, len);
+    
+    //display(buffer, len);
     return 0;
 
     #else
         printf("Error: RDRAND is not supported on this CPU\n");
         return -1;
     #endif
+    //here
 }
 
 
+void save_to_file(uint8_t *buffer, size_t len, const char *filename) {
+    FILE *file = fopen(filename, "wb");
+    if (!file) {
+        printf("Error: Cannot open file %s\n", filename);
+        return;
+    }
+    fwrite(buffer, 1, len, file);
+    fclose(file);
+    printf("Entropy saved to %s\n", filename);
+}
+
+void mix_entropy(uint8_t *output) {
+    uint8_t system_entropy[ENTROPY_SIZE];
+    uint8_t CPU_entropy[ENTROPY_SIZE];
+
+    if (get_system_entropy(system_entropy, ENTROPY_SIZE) == 0) {
+        printf("System entropy generated successfully\n");
+    } else {
+        printf("Error: System entropy generation failed\n");
+        return;
+    }
+
+    if (get_CPU_entropy(CPU_entropy, ENTROPY_SIZE) == 0) {
+        printf("CPU entropy generated successfully\n");
+    } else {
+        printf("Error: CPU entropy generation failed\n");
+        return;
+    
+    }
+
+    memcpy(output, system_entropy, ENTROPY_SIZE);
+    memcpy(output + ENTROPY_SIZE, CPU_entropy, ENTROPY_SIZE);   
+}
 
 int main(){
     
-    uint8_t buffer [256];
-    size_t len = 256;
-    if(get_system_entropy(buffer, len) == 0){
-        printf("Entropy generated successfully\n");
-    }
-
-    if(get_CPU_entropy(buffer, len) == 0){
-        printf("Hardware Entropy generated successfully\n");
-    }
+    uint8_t latest[64];
+    size_t len = 32;
+    mix_entropy(buffer);
+    save_to_file(buffer, len, "output.txt");
+    display(latest,OUTPUT_SIZE);
     
-    else{
-        printf("Error: Entropy generation failed\n");
-    }
-
+    hash_mix_entropy(latest);
+    printf("SHAKE-256 hashed entropy:\n");
+    display(latest, MIXED_ENTROPY_SIZE);
+    save_to_file(latest, OUTPUT_SIZE, "hashed_entropy.txt");
+    
     return 0;
 }
