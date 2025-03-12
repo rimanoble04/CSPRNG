@@ -2,6 +2,8 @@
 
 #include "entropy.h"
 
+uint8_t buffer[MIXED_ENTROPY_SIZE];
+
 void display(uint8_t *buffer, size_t len) {
     for(int i = 0; i < len; i++) {
         printf("%02x", buffer[i]);
@@ -46,6 +48,7 @@ int get_CPU_entropy(uint8_t *buffer, size_t len) {
         }
     }
 
+    
     //display(buffer, len);
     return 0;
 
@@ -68,29 +71,41 @@ void save_to_file(uint8_t *buffer, size_t len, const char *filename) {
     printf("Entropy saved to %s\n", filename);
 }
 
+void mix_entropy(uint8_t *output) {
+    uint8_t system_entropy[ENTROPY_SIZE];
+    uint8_t CPU_entropy[ENTROPY_SIZE];
+
+    if (get_system_entropy(system_entropy, ENTROPY_SIZE) == 0) {
+        printf("System entropy generated successfully\n");
+    } else {
+        printf("Error: System entropy generation failed\n");
+        return;
+    }
+
+    if (get_CPU_entropy(CPU_entropy, ENTROPY_SIZE) == 0) {
+        printf("CPU entropy generated successfully\n");
+    } else {
+        printf("Error: CPU entropy generation failed\n");
+        return;
+    
+    }
+
+    memcpy(output, system_entropy, ENTROPY_SIZE);
+    memcpy(output + ENTROPY_SIZE, CPU_entropy, ENTROPY_SIZE);   
+}
+
 int main(){
     
-    uint8_t buffer [ENTROPY_SIZE];
+    uint8_t latest[64];
     size_t len = 32;
-    if(get_system_entropy(buffer, len) == 0){
-        printf("Entropy generated successfully\n");
-        save_to_file(buffer, len, "output.txt");
-    }
-
-    if(get_CPU_entropy(buffer, len) == 0){
-        printf("Hardware Entropy generated successfully\n");
-     
-
-        if(get_system_entropy(buffer, len) == 0){
-            printf("Entropy generated successfully\n");
-            save_to_file(buffer, len, "output.txt");
-        
-        }
-    }
-  
-    else{
-        printf("Error: Entropy generation failed\n");
-    }
-
+    mix_entropy(buffer);
+    save_to_file(buffer, len, "output.txt");
+    display(latest,OUTPUT_SIZE);
+    
+    hash_mix_entropy(latest);
+    printf("SHAKE-256 hashed entropy:\n");
+    display(latest, MIXED_ENTROPY_SIZE);
+    save_to_file(latest, OUTPUT_SIZE, "hashed_entropy.txt");
+    
     return 0;
 }
