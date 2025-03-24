@@ -1,3 +1,4 @@
+//export PATH="/mingw64/bin:$PATH"
 //gcc system_entropy.c -o system_entropy.exe -lbcrypt -mrdrnd
 // gcc system_entropy.c shake.c -o entropy_mixer -lbcrypt -lcrypto -mrdrnd
 
