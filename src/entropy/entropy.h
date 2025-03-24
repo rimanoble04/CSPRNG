@@ -1,7 +1,6 @@
 #ifndef ENTROPY_H
 #define ENTROPY_H
 
-
 #include<stdio.h>
 #include<stdint.h>
 #include<windows.h>
@@ -9,11 +8,11 @@
 #include<string.h>
 #include<openssl/evp.h> // Required for SHAKE-256
 #include<immintrin.h>  // Required for RDRAND intrinsic
-#pragma comment(lib, "bcrypt.lib")
 
+#pragma comment(lib, "bcrypt.lib")
 #define ENTROPY_SIZE 32
-#define OUTPUT_SIZE 64 
-#define MIXED_ENTROPY_SIZE 64  // 512-bit mixed entropy size
+     #define OUTPUT_SIZE 64 
+   #define MIXED_ENTROPY_SIZE 64  // 512-bit mixed entropy size
 
 extern uint8_t buffer[MIXED_ENTROPY_SIZE];  // Global buffer (only declaration)
 

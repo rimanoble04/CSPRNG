@@ -1,4 +1,6 @@
+//export PATH="/mingw64/bin:$PATH"
 //gcc system_entropy.c -o system_entropy.exe -lbcrypt -mrdrnd
+// gcc system_entropy.c shake.c -o entropy_mixer -lbcrypt -lcrypto -mrdrnd
 
 #include "entropy.h"
 
@@ -8,6 +10,8 @@ void display(uint8_t *buffer, size_t len) {
     for(int i = 0; i < len; i++) {
         printf("%02x", buffer[i]);
     }
+
+    printf("%d",sizeof(buffer));
     printf("\n");
 }
 
@@ -106,6 +110,7 @@ int main(){
     printf("SHAKE-256 hashed entropy:\n");
     display(latest, MIXED_ENTROPY_SIZE);
     save_to_file(latest, OUTPUT_SIZE, "hashed_entropy.txt");
-    
+    printf("%d",sizeof(buffer));
+
     return 0;
 }
