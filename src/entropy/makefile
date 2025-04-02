@@ -11,7 +11,7 @@ OBJS = $(SRCS:.c=.o)
 TARGET = entropy_mixer.exe
 
 # Default Rule: Build the Executable
-all: $(TARGET)
+all: $(TARGET) 
 
 # Linking Step: Create the final executable
 $(TARGET): $(OBJS)
