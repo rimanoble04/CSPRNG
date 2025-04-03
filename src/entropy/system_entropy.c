@@ -102,6 +102,7 @@ int main(){
     
     uint8_t latest[64];
     size_t len = 32;
+    size_t key_size = 32;
     mix_entropy(buffer);
     save_to_file(buffer, len, "output.txt");
     display(latest,OUTPUT_SIZE);
@@ -111,6 +112,8 @@ int main(){
     display(latest, MIXED_ENTROPY_SIZE);
     save_to_file(latest, OUTPUT_SIZE, "hashed_entropy.txt");
     printf("%d",sizeof(buffer));
+    save_to_file(latest, key_size, "key.bin");
+
 
     return 0;
 }
