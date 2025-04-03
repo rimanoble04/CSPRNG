@@ -67,7 +67,11 @@ int main() {
     AESCTR_DRBG drbg;
     aesctr_drbg_init(&drbg, seed);  // Initialize DRBG with the seed from file
 
-    uint8_t random_bytes[64];  // Generate 64 bytes of randomness
+    int output_size;
+    printf("Enter the number of bytes to generate: ");
+    scanf("%d", &output_size);  // Get the number of bytes to generate
+    
+    uint8_t random_bytes[output_size];  // Generate 64 bytes of randomness
     aesctr_drbg_generate(&drbg, random_bytes, sizeof(random_bytes));
 
     printf("Generated Random Bytes: ");
