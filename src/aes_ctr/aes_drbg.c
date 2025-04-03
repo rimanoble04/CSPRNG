@@ -36,12 +36,36 @@ void aesctr_drbg_generate(AESCTR_DRBG *drbg, uint8_t *output, size_t size) {
     }
 }
 
+// Function to read seed from a binary file
+int read_seed_from_file(const char *filename, uint8_t *seed, size_t seed_size) {
+    FILE *file = fopen(filename, "rb");  // Open the file in binary mode
+    if (!file) {
+        perror("Failed to open file");
+        return -1;
+    }
+
+    size_t bytes_read = fread(seed, 1, seed_size, file);  // Read the seed into the buffer
+    fclose(file);
+
+    if (bytes_read != seed_size) {
+        fprintf(stderr, "Failed to read the expected number of bytes from file\n");
+        return -1;
+    }
+
+    return 0;
+}
+
 // Example Usage
 int main() {
-    uint8_t seed[KEY_SIZE] = {0};  // Example 256-bit SHAKE-256 seed (Replace with actual)
-    AESCTR_DRBG drbg;
+    uint8_t seed[KEY_SIZE];  // Seed buffer (256 bits)
+    
+    // Read seed from key.bin
+    if (read_seed_from_file("C:/Users/hngay/OneDrive/Desktop/Gouri HN/CSPRNG/CSPRNG/src/entropy/key.bin", seed, sizeof(seed)) != 0) {
+        return 1;  // Error reading seed
+    }
 
-    aesctr_drbg_init(&drbg, seed);  // Initialize DRBG
+    AESCTR_DRBG drbg;
+    aesctr_drbg_init(&drbg, seed);  // Initialize DRBG with the seed from file
 
     uint8_t random_bytes[64];  // Generate 64 bytes of randomness
     aesctr_drbg_generate(&drbg, random_bytes, sizeof(random_bytes));
