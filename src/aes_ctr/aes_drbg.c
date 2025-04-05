@@ -1,3 +1,6 @@
+//gcc aes_drbg.c -o aes_drbg.exe -I"C:/msys64/mingw64/include" -L"C:/msys64/mingw64/lib" -lssl -lcrypto
+
+
 #include <stdio.h>
 #include <stdint.h>
 #include <string.h>
@@ -7,7 +10,10 @@
 #define AES_BLOCK_SIZE 16  // AES block size (128 bits)
 #define KEY_SIZE 32        // AES-256 key size (256 bits)
 
+//C:\Users\gulab\OneDrive\Desktop\pROJECTS\CSPPRNG\project\CSPRNG\src\entropy\nist\sts-2.1.2\experiments\AlgorithmTesting\frequency.data
+//CSPRNG\src\entropy\nist\sts-2.1.2\experiments\AlgorithmTesting\frequency.data
 // Structure to hold DRBG state
+
 typedef struct {
     AES_KEY aes_key;
     uint8_t counter[AES_BLOCK_SIZE];
@@ -55,12 +61,24 @@ int read_seed_from_file(const char *filename, uint8_t *seed, size_t seed_size) {
     return 0;
 }
 
+void save_to_file(uint8_t *buffer, size_t len, const char *filename) {
+    FILE *file = fopen(filename, "wb");
+    if (!file) {
+        printf("Error: Cannot open file %s\n", filename);
+        return;
+    }
+    fwrite(buffer, 1, len, file);
+    fclose(file);
+    printf("Entropy saved to %s\n", filename);
+}
+
+
 // Example Usage
 int main() {
     uint8_t seed[KEY_SIZE];  // Seed buffer (256 bits)
     
     // Read seed from key.bin
-    if (read_seed_from_file("C:/Users/hngay/OneDrive/Desktop/Gouri HN/CSPRNG/CSPRNG/src/entropy/key.bin", seed, sizeof(seed)) != 0) {
+    if (read_seed_from_file("../entropy/key.bin", seed, sizeof(seed)) != 0) {
         return 1;  // Error reading seed
     }
 
@@ -79,6 +97,8 @@ int main() {
         printf("%02x", random_bytes[i]);
     }
     printf("\n");
+
+    save_to_file(random_bytes, sizeof(random_bytes), "../entropy/nist/sts-2.1.2/experiments/AlgorithmTesting/frequency.data");  // Save to file
 
     return 0;
 }
