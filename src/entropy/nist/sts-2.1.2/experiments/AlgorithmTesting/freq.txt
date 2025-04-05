@@ -1,0 +1,6 @@
+________________________________________________________________________________
+
+		FILE = C:\Users\gulab\OneDrive\Desktop\pROJECTS\CSPPRNG\project\CSPRNG\src\entropy\nist\sts-2.1.2\experiments\AlgorithmTesting\frequency.data		ALPHA = 0.0100
+________________________________________________________________________________
+
+		BITSREAD = 1000000 0s = 499966 1s = 500034
