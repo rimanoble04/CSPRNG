@@ -67,9 +67,16 @@ void save_to_file(uint8_t *buffer, size_t len, const char *filename) {
         printf("Error: Cannot open file %s\n", filename);
         return;
     }
-    fwrite(buffer, 1, len, file);
+
+    // Write each byte as 8 bits (0s and 1s)
+    for (size_t i = 0; i < len; ++i) {
+        for (int bit = 7; bit >= 0; --bit) {
+            fputc((buffer[i] >> bit) & 1 ? '1' : '0', file);
+        }
+    }
+
     fclose(file);
-    printf("Entropy saved to %s\n", filename);
+    printf("Bitstream saved to %s\n", filename);
 }
 
 
@@ -92,7 +99,7 @@ int main() {
     uint8_t random_bytes[output_size];  // Generate 64 bytes of randomness
     aesctr_drbg_generate(&drbg, random_bytes, sizeof(random_bytes));
 
-    printf("Generated Random Bytes: ");
+     printf("Generated Random Bytes: ");
     for (size_t i = 0; i < sizeof(random_bytes); i++) {
         printf("%02x", random_bytes[i]);
     }
