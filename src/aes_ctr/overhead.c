@@ -99,29 +99,28 @@ double benchmark_rsa(uint8_t *seed, uint8_t *output) {
 
 // ---------------- Main ----------------
 int main() {
-    uint8_t seed[SEED_SIZE];
-    RAND_bytes(seed, SEED_SIZE);  // Generate fresh random seed
-
-    printf("Generated Seed: ");
-    for (int i = 0; i < SEED_SIZE; i++) {
-        printf("%02x", seed[i]);
+    FILE *f = fopen("results.csv", "a");  // Append mode
+    if (!f) {
+        perror("Failed to open results.csv");
+        return 1;
     }
-    printf("\n\n");
 
-    uint8_t aes_output[OUTPUT_SIZE];
-    uint8_t rsa_output[OUTPUT_SIZE];
+    for (int i = 0; i < 10; i++) {  // Run 10 iterations
+        uint8_t seed[SEED_SIZE];
+        RAND_bytes(seed, SEED_SIZE);
 
-    double aes_time = benchmark_aes(seed, aes_output);
-    printf("AES-CTR DRBG Time: %.8f seconds\n", aes_time);
+        uint8_t aes_output[OUTPUT_SIZE];
+        uint8_t rsa_output[OUTPUT_SIZE];
 
-    double rsa_time = benchmark_rsa(seed, rsa_output);
-    printf("RSA-based DRBG Time: %.8f seconds\n", rsa_time);
+        double aes_time = benchmark_aes(seed, aes_output);
+        double rsa_time = benchmark_rsa(seed, rsa_output);
 
-    printf("\n--- Performance Comparison ---\n");
-    if (aes_time < rsa_time)
-        printf("AES-CTR DRBG is faster by %.8f seconds\n", rsa_time - aes_time);
-    else
-        printf("RSA-based DRBG is faster by %.8f seconds (unexpected)\n", aes_time - rsa_time);
+        fprintf(f, "%d,%.8f,%.8f\n", i + 1, aes_time, rsa_time);
+        printf("Iteration %d complete\n", i + 1);
+    }
 
+    fclose(f);
+    printf("Benchmark results saved to results.csv\n");
     return 0;
 }
+
