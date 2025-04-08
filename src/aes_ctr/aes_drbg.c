@@ -54,6 +54,7 @@ int read_seed_from_file(const char *filename, uint8_t *seed, size_t seed_size) {
 // Generate random output
 void aesctr_drbg_generate(AESCTR_DRBG *drbg, uint8_t *output, size_t size) {
     uint8_t buffer[AES_BLOCK_SIZE];
+    clock_t start = clock();  // Start timing
 
     for (size_t i = 0; i < size; i += AES_BLOCK_SIZE) {
         if (drbg->reseed_counter >= RESEED_INTERVAL_LIMIT) {
@@ -87,6 +88,15 @@ void aesctr_drbg_generate(AESCTR_DRBG *drbg, uint8_t *output, size_t size) {
         }
 
         drbg->reseed_counter++;
+    }
+
+    clock_t end = clock();  // End timing
+    double elapsed = (double)(end - start) / CLOCKS_PER_SEC;
+
+    FILE *f = fopen("../aes_ctr/aes_time.txt", "w");
+    if (f) {
+        fprintf(f, "%.8f", elapsed);
+        fclose(f);
     }
 }
 
